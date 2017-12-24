@@ -1,6 +1,6 @@
 # Departmental Average Calculation Tool
 
-This is a simple tool for calculating department-based averages for Boğaziçi Unversity Students. 
+This is a simple tool for calculating department-based averages for Boğaziçi Unversity students. 
 
 ### Program Execution
 You need Python2.7 in order to run this program. Fire up the terminal and type: 
