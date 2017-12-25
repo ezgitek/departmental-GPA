@@ -72,7 +72,7 @@ def extractCourses(filename):
 			repeat = ''
 
 			nexti = 2
-			if course[2] in ['AA', 'BA', 'BB', 'CB', 'CC', 'DC', 'DD', 'F', 'P']:
+			if course[2] in gpa_map.keys():
 				grade = course[2]
 				nexti = 3
 			else:
@@ -106,14 +106,6 @@ def extractCourses(filename):
 	return courses
 
 def calculateGpa(filename, depts):
-	gpa_map = {'AA' : 4.00,
-				'BA' : 3.50,
-				'BB' : 3.00,
-				'CB' : 2.50,
-				'CC' : 2.00,
-				'DC' : 1.50,
-				'DD' : 1.00,
-				'F' : 0.00}
 	courses = extractCourses(filename)
 	total_credits = 0.0
 	real_total_credits = 0.0
@@ -230,4 +222,5 @@ def main():
 	
 
 if __name__ == "__main__":
-	main()
+    gpa_map = {'AA' : 4.00,'BA' : 3.50,'BB' : 3.00,'CB' : 2.50,'CC' : 2.00,'DC' : 1.50,'DD' : 1.00,'F' : 0.00,'P' : -1}
+    main()
