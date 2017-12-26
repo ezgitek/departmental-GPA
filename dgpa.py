@@ -14,8 +14,10 @@ def pdfToCsv(filename):
         os.system(req)
 
     f = open(outname, 'r')
+    #text = csv.reader(f)
+    #import csv 
     text = f.read().split('\n')
-    f.close()
+    #f.close()
     return text
 
 def extractCourses(filename):
@@ -40,14 +42,19 @@ def extractCourses(filename):
 
         index+=1
 
+        if ('PREP.' in data[index]):
+                break
+
         while 'Code.Section' not in data[index]:
+            
             index+=1
 
         data = data[index:]
 
         index = 1
         while 'Semester :' not in data[index]:
-            if 'Commitee Records' in data[index]:
+            if ('Commitee Records' in data[index]):
+                print data[index]
                 brk = True
                 break
 
@@ -58,11 +65,14 @@ def extractCourses(filename):
             if 'Academic Records' in data[index]:
                 index+=1
 
-
-            course = data[index].split(',')
+            course = data[index]
+            if '"' in course:
+                course = course[:course.index('"')] + course[course.index('"'):course.rindex('"')].replace(',', ' ') + course[course.rindex('"'):]
+            course = course.split(',')
             course = filter(None, course)
             code = course[0].split('.')[0].strip()
 
+            print course
             
 
             name = ''
@@ -138,9 +148,15 @@ def calculateGpa(filename, depts):
     else:
         codes = courses.keys()
 
+    if len(depts) == 0 and len(nonexistents) > 0:
+        return (depts, 0, {}, 0, 0, nonexistents)
+
     repeats = {}
     for code in codes:              
         course = courses[code]
+
+        if course['grade'] =='W':
+            continue
         
         if code in repeated:
             course = repeated[code][-1]
@@ -152,6 +168,7 @@ def calculateGpa(filename, depts):
         if term not in spas:
             spas[term] = 0
             term_credits[term]=0
+
         if course['type'] =='NC':
             count+=1
             continue
@@ -177,8 +194,12 @@ def calculateGpa(filename, depts):
         if repeat['grade'] == 'P' or repeat['grade'] == '' or repeat['type'] =='NC':
             continue
         term = repeat['term']
+        if term not in spas:
+            spas[term] = 0.0
+            term_credits[term] = 0.0
         spas[term]+=gpa_map[repeat['grade']] * float(repeat['credit'])
         term_credits[term]+=float(repeat['credit'])
+
 
 
     gpa = total_points/total_credits
@@ -195,7 +216,11 @@ def print_output(calculations):
 
     print 
     if len(depts) == 0:
-        print 'Departments: all'
+        if len(nonexistents) > 0:
+            print 'Departments', str(nonexistents), 'do not exist in your transcript.'
+            return 
+        else:
+            print 'Departments: all'
     else:
         if len(nonexistents) != 0:
             print 'WARNING: Departments', str(nonexistents), 'does not exist in your transcript. Do you have a typo?'
@@ -243,5 +268,5 @@ def main():
     
 
 if __name__ == "__main__":
-    gpa_map = {'AA' : 4.00,'BA' : 3.50,'BB' : 3.00,'CB' : 2.50,'CC' : 2.00,'DC' : 1.50,'DD' : 1.00,'F' : 0.00,'P' : -1}
+    gpa_map = {'AA' : 4.00,'BA' : 3.50,'BB' : 3.00,'CB' : 2.50,'CC' : 2.00,'DC' : 1.50,'DD' : 1.00,'F' : 0.00,'P' : -1, 'W': -1}
     main()
